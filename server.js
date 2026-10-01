@@ -1193,3 +1193,89 @@ Transfert :
 
 L'application doit être prête à être testée puis déployée.
 
+const express = require('express');
+const app = express();
+const PORT = process.env.PORT || 10000;
+
+app.get('/api/status',(req,res)=>res.json({status:"OK"}));
+
+app.get('/',(req,res)=>res.send(`
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1">
+<title>MSDMA</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+body{font-family:'Inter',sans-serif;background:#F1F3F7}
+.screen{display:none}.screen.active{display:flex}
+.card{background:white;border-radius:16px;box-shadow:0 1px 2px rgba(0,0,0,0.05);border:1px solid #EEF0F3}
+.icon-box{width:48px;height:48px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:20px}
+</style>
+</head>
+<body class="flex justify-center">
+<div class="w-full max-w-[420px] bg-[#F1F3F7] min-h-screen relative pb-[70px] shadow-2xl">
+
+<!-- HEADER DARK -->
+<div id="topbar" class="bg-[#101E3A] text-white px-4 py-3 flex items-center gap-3 sticky top-0 z-20">
+<span id="back" class="hidden" onclick="goBack()">←</span>
+<h1 id="title" class="font-semibold text-[15px]">MSDMA</h1>
+<span class="ml-auto text-lg">⋮</span>
+</div>
+
+<!-- SCREEN: ACCUEIL (comme capture 5 et 6) -->
+<div id="s-home" class="screen active flex-col">
+<div class="bg-white p-3 m-3 rounded-xl flex items-center gap-2 border">
+<span class="text-gray-400">⌕</span><input class="flex-1 outline-none text-[13px]" placeholder="Rechercher un service, une tâche...">
+</div>
+
+<div class="px-4">
+<div class="flex justify-between items-center"><h2 class="font-bold text-[15px]">Que recherchez-vous?</h2><span class="text-[12px] font-semibold">Voir tout</span></div>
+<div class="grid grid-cols-4 gap-3 mt-3 text-center">
+<div onclick="openDetails()"><div class="icon-box bg-blue-50 mx-auto">🚚</div><p class="text-[11px] mt-1 font-medium">Livraison</p></div>
+<div><div class="icon-box bg-green-50 mx-auto">🛍️</div><p class="text-[11px] mt-1">Courses</p></div>
+<div><div class="icon-box bg-blue-50 mx-auto">✈️</div><p class="text-[11px] mt-1">Transport</p></div>
+<div><div class="icon-box bg-orange-50 mx-auto">🏠</div><p class="text-[11px] mt-1">Ménage</p></div>
+<div><div class="icon-box bg-red-50 mx-auto">🔧</div><p class="text-[11px] mt-1">Réparation</p></div>
+<div><div class="icon-box bg-indigo-50 mx-auto">💻</div><p class="text-[11px] mt-1">Informatique</p></div>
+<div><div class="icon-box bg-blue-50 mx-auto">👶</div><p class="text-[11px] mt-1">Aide à domicile</p></div>
+<div><div class="icon-box bg-gray-100 mx-auto">⋮</div><p class="text-[11px] mt-1">Autres</p></div>
+</div>
+</div>
+
+<div class="mx-3 mt-5 bg-[#101E3A] rounded-[20px] p-4 text-white flex justify-between items-center relative overflow-hidden">
+<div><p class="font-bold text-[14px] leading-tight">Besoin d'un service?<br>Publiez votre tâche en<br>quelques clics!</p><p class="text-[11px] text-gray-400 mt-1">Les prestataires proches de vous répondent.</p><button onclick="openDetails()" class="mt-3 bg-[#FFC400] text-black px-4 py-2 rounded-lg text-[12px] font-bold">Publier une tâche</button></div>
+<div class="w-14 h-14 bg-[#1C2E4E] rounded-full flex items-center justify-center text-2xl">⚡</div>
+</div>
+
+<div class="px-3 mt-5">
+<div class="flex justify-between"><h3 class="font-bold text-[15px]">Tâches récentes</h3><span class="text-[12px] font-semibold">Voir tout</span></div>
+<div class="mt-3 space-y-2">
+<div onclick="openDetails()" class="card p-3 flex items-center gap-3"><div class="icon-box bg-[#FFF6E0]">📦</div><div class="flex-1"><p class="text-[13px] font-semibold">Livraison de colis</p><p class="text-[11px] text-gray-500">Kaloum → Matoto • Aujourd'hui • 18h</p></div><span class="font-bold text-[12px]">50 000 GNF</span></div>
+<div class="card p-3 flex items-center gap-3"><div class="icon-box bg-[#FFF6E0]">🛒</div><div class="flex-1"><p class="text-[13px] font-semibold">Courses au marché</p><p class="text-[11px] text-gray-500">Nongo → Lambanyi • Demain • 09h</p></div><span class="font-bold text-[12px]">35 000 GNF</span></div>
+</div>
+</div>
+</div>
+
+<!-- SCREEN: DETAILS DE LA TACHE (capture 1) -->
+<div id="s-details" class="screen flex-col p-3 gap-3">
+<div class="card p-4">
+<div class="flex gap-3"><div class="icon-box bg-[#FFF6E0] w-12 h-12">📦</div><div class="flex-1"><div class="flex justify-between"><h2 class="font-bold text-[16px]">Livraison de colis</h2><span class="font-bold text-[13px]">50 000<br><span class="text-[10px] font-normal">GNF</span></span></div><div class="flex gap-4 mt-1 text-[11px] text-gray-500"><span>📍 Kaloum → Matoto</span><span>🕒 Aujourd'hui • 18h</span></div></div></div>
+<hr class="my-4">
+<p class="text-[13px] font-medium">Description</p><p class="text-[12px] text-gray-600 mt-1 leading-relaxed">Je veux envoyer un petit colis de Kaloum à Matoto. Merci de bien vouloir me contacter après acceptation.</p>
+</div>
+<div class="card p-4">
+<p class="text-[13px] font-medium">Contact</p>
+<div class="flex items-center gap-3 mt-3"><div class="w-10 h-10 bg-[#DCEAF6] rounded-full flex items-center justify-center font-bold text-[13px]">AC</div><div class="flex-1"><p class="font-bold text-[13px]">Client</p><p class="text-[11px] text-gray-500">Membre depuis 2023</p></div><div class="text-right"><p class="text-[#FFC400] text-xs">★</p><p class="text-[11px] text-[#FFC400]">4,8 <span class="text-gray-400">(12 avis)</span></p></div></div>
+</div>
+<button onclick="openAccepted()" class="bg-[#101E3A] text-white py-4 rounded-xl font-semibold text-[13px]">Accepter la tâche</button>
+<button class="bg-white border py-4 rounded-xl font-semibold text-[13px] flex justify-center items-center gap-2">💬 Écrire au client</button>
+<p class="text-[11px] text-center text-gray-500">Vous serez mis en relation avec le client après acceptation.</p>
+</div>
+
+<!-- SCREEN: TACHE ACCEPTEE (capture 2) -->
+<div id="s-accepted" class="screen flex-col p-3 gap-3">
+<div class="card p-3">
+<div class="flex justify-between"><div><p class="font-bold text-[13px]">En cours de livraison</p><p class="text-[11px] text-gray-500">Colis Kaloum → Matoto</p></div><span class="text-[11px] font-bold text-green-600">50 000 GNF</span></div>
+<div class="mt-3 bg-[#EE
